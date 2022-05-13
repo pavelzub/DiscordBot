@@ -1,10 +1,21 @@
 import os
 from dotenv import load_dotenv
 import discord
+from discord.ext import commands
 import python_opendota
 from pprint import pprint
 from python_opendota.api import players_api
 from python_opendota.api import heroes_api
+import firebase_admin
+from firebase_admin import credentials
+from firebase_admin import db
+
+cred = credentials.Certificate("fireToken.json")
+fireApp = firebase_admin.initialize_app(cred, {'databaseURL': 'https://botdis-7d015-default-rtdb.firebaseio.com'}) 
+dotaPlayersRef = db.reference('/DotaPlayers')
+
+def registerDotaPlayer(discordId, dotaId):
+    dotaPlayersRef.update({discordId: dotaId})
 
 load_dotenv()
 bot = discord.Client(intents=discord.Intents.all())
@@ -37,7 +48,7 @@ async def on_message(message):
     if hero != None:
         for stat in stats:
             if int(stat.hero_id) == hero.id:
-                await message.channel.send('Winrate on {} : {}%'.format(hero.localized_name, stat.win / stat.games * 100))
+                await message.channel.send('Winrate on {} : {:.2f}%'.format(hero.localized_name, stat.win / stat.games * 100))
 
 # pprint(response)
 

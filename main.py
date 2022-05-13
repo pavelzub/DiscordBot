@@ -17,8 +17,7 @@ async def on_ready():
 async def on_message(message):
     print(message)
     if message.content == 'test':
-        print('test')
-        await message.channel.send("Dmitriy pidor")
+        await message.channel.send("Не пиши сюда, от тебя говной воняет")
 
 config = configparser.ConfigParser()
 config.read('conf.ini')

@@ -1,5 +1,6 @@
 import os
 from dotenv import load_dotenv
+from pyparsing import empty
 import discord
 from discord.ext import commands
 import python_opendota
@@ -8,6 +9,7 @@ from python_opendota.api import heroes_api
 import firebase_admin
 from firebase_admin import credentials
 from firebase_admin import db
+import re
 
 load_dotenv()
 
@@ -29,7 +31,7 @@ def get_dota_id(discord_id):
 
 def get_hero(name):
     for hero in all_heroes:
-        if hero.localized_name.lower() == name.lower():
+        if name.lower() in hero.localized_name.lower():
             return hero
     return None
 
@@ -60,9 +62,44 @@ async def on_ready():
 
         guild_count = guild_count + 1
 
+#SLON OTVETSTVENYI
 @bot.command()
-async def ping(ctx):
-    await ctx.reply('pong')
+async def compare(ctx, user_ref, hero_name: str):
+    result = re.match(r'<@(\d+)>', user_ref)
+    hero = get_hero(hero_name)
+    if result is None or hero is None:
+        return
+
+    dota_player_first = get_dota_id(ctx.message.author.id)
+    dota_player_second = get_dota_id(result.group(1))
+
+    if dota_player_first is None or dota_player_second is None:
+        return
+
+    stats_f = get_player_stats(dota_player_first)
+    name_f = get_player_name(dota_player_first)
+
+    stats_s = get_player_stats(dota_player_second)
+    name_s = get_player_name(dota_player_second)
+
+    if stats_f is None or name_f is None or stats_s is None or name_s is None:
+        return
+
+    result = ''
+    for stat in stats_f:
+        if int(stat.hero_id) == hero.id:
+            result += f'{name_f} winrate on {hero.localized_name}: {stat.win / stat.games * 100:.2f}%, games {stat.games}'
+
+    if result == '':
+        result = f'{name_f} not played on {hero.localized_name}'
+    result += "\n"
+
+    for stat in stats_s:
+        if int(stat.hero_id) == hero.id:
+            result += f'{name_s} winrate on {hero.localized_name}: {stat.win / stat.games * 100:.2f}%, games {stat.games}'
+
+    
+    await ctx.reply(result)
 
 @bot.command()
 async def register(ctx, dota_player_id):
@@ -88,7 +125,7 @@ async def listen_message(message):
             if stats is not None:
                 for stat in stats:
                     if int(stat.hero_id) == hero.id:
-                        await message.channel.send(f'{name} winrate on {hero.localized_name} : {stat.win / stat.games * 100:.2f}%')
+                        await message.channel.send(f'{name} winrate on {hero.localized_name}: {stat.win / stat.games * 100:.2f}%, games {stat.games}')
 
 
 token = os.getenv('TOKEN', None)

@@ -16,7 +16,7 @@ firebase_app = firebase_admin.initialize_app(firebase_cred, {'databaseURL': 'htt
 players_db_ref = db.reference('/DotaPlayers')
 
 intents = discord.Intents.all()
-bot = commands.Bot(command_prefix='>', intents=intents)
+bot = commands.Bot(command_prefix='!', intents=intents)
 
 dota_client = python_opendota.ApiClient(python_opendota.Configuration(host = "http://api.opendota.com/api"))
 player_api = players_api.PlayersApi(dota_client)
@@ -30,6 +30,10 @@ def get_hero(name):
         if hero.localized_name.lower() == name.lower():
             return hero
     return None
+
+def get_player_name(dota_player_id):
+    player_info = player_api.players_account_id_get(int(dota_player_id))
+    print(player_info)
 
 def register_dota_player(discord_id, dota_id):
     players_db_ref.update({ discord_id: dota_id })
@@ -47,8 +51,9 @@ async def ping(ctx):
     await ctx.reply('pong')
 
 @bot.command()
-async def pavel(ctx):
-    await ctx.send('Не смог сделать команды для бота.')
+async def register(ctx, dota_player_id):
+    await ctx.reply(f"Ща ща, ищу игрока с id {dota_player_id}")
+    get_player_name(dota_player_id)
 
 @bot.listen('on_message')
 async def listen_message(message):

@@ -7,7 +7,7 @@ from python_opendota.api import players_api
 from python_opendota.api import heroes_api
 
 load_dotenv()
-bot = discord.Client()
+bot = discord.Client(intents=discord.Intents.all())
 dota_client = python_opendota.ApiClient(python_opendota.Configuration(host = "http://api.opendota.com/api"))
 player_api = players_api.PlayersApi(dota_client)
 heroes_api = heroes_api.HeroesApi(dota_client)
@@ -15,10 +15,10 @@ heroes_api = heroes_api.HeroesApi(dota_client)
 all_heroes = heroes_api.heroes_get()
 stats = player_api.players_account_id_heroes_get(77315939)
 
-def heroId(name):
+def getHero(name):
     for hero in all_heroes:
         if hero.localized_name.lower() == name.lower():
-            return hero.id
+            return hero
     return -1
 
 @bot.event
@@ -33,11 +33,11 @@ async def on_ready():
 
 @bot.event
 async def on_message(message):
-    id = heroId(message.content)
-    if id > 0:
+    hero = getHero(message.content)
+    if hero != -1:
         for stat in stats:
-            if stat.hero_id == id:
-                await message.channel.send('Winrate on {} : {}%'.format(message.content, stat.win / stat.games * 100))
+            if int(stat.hero_id) == hero.id:
+                await message.channel.send('Winrate on {} : {}%'.format(hero.localized_name, stat.win / stat.games * 100))
 
 # pprint(response)
 

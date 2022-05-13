@@ -25,7 +25,7 @@ heroes_api = heroes_api.HeroesApi(dota_client)
 all_heroes = heroes_api.heroes_get()
 
 def get_dota_id(discord_id):
-    return players_db_ref.get()[str(discord_id)]
+    return players_db_ref.get().get(str(discord_id), None)
 
 def get_hero(name):
     for hero in all_heroes:
@@ -67,24 +67,28 @@ async def ping(ctx):
 @bot.command()
 async def register(ctx, dota_player_id):
     name = get_player_name(dota_player_id)
+    if get_dota_id(ctx.message.author.id) is not None:
+        await ctx.reply(f"За такое надо платить")
+        return
     if name != None:
         await ctx.reply(f"Привет дотер {name}")
         register_dota_player(ctx.message.author.id, dota_player_id)
     else:
-        await ctx.reply(f"Кажется кто-то пиздун")
+        await ctx.reply(f"Кажется кто-то пиздун или закрыл аккаунт")
 
 @bot.listen('on_message')
 async def listen_message(message):
     hero = get_hero(message.content)
     if hero != None:
         dota_player_id = get_dota_id(message.author.id)
-        stats = get_player_stats(dota_player_id)
-        name = get_player_name(dota_player_id)
-        name = name if (name is not None) else 'Чей-то'
-        if stats is not None:
-            for stat in stats:
-                if int(stat.hero_id) == hero.id:
-                    await message.channel.send(f'{name} winrate on {hero.localized_name} : {stat.win / stat.games * 100:.2f}%')
+        if dota_player_id is not None:
+            stats = get_player_stats(dota_player_id)
+            name = get_player_name(dota_player_id)
+            name = name if (name is not None) else 'Чей-то'
+            if stats is not None:
+                for stat in stats:
+                    if int(stat.hero_id) == hero.id:
+                        await message.channel.send(f'{name} winrate on {hero.localized_name} : {stat.win / stat.games * 100:.2f}%')
 
 
 token = os.getenv('TOKEN', None)

@@ -1,3 +1,4 @@
 ﻿conf.ini
 .env
 newrelic_agent.log
+fireToken.json

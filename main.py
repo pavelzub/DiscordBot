@@ -1,6 +1,10 @@
+from asyncio.windows_events import NULL
+from cmath import nan
+import os
+from dotenv import load_dotenv
 import discord
-import configparser
 
+load_dotenv()
 bot = discord.Client()
 
 @bot.event
@@ -19,6 +23,6 @@ async def on_message(message):
     if message.content == 'test':
         await message.channel.send("Не пиши сюда, от тебя говной воняет")
 
-config = configparser.ConfigParser()
-config.read('conf.ini')
-bot.run(config['DEFAULT']['token'])
+token = os.getenv('TOKEN', None)
+if token != None:
+    bot.run(token)

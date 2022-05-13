@@ -19,7 +19,7 @@ def getHero(name):
     for hero in all_heroes:
         if hero.localized_name.lower() == name.lower():
             return hero
-    return -1
+    return None
 
 @bot.event
 async def on_ready():
@@ -34,7 +34,7 @@ async def on_ready():
 @bot.event
 async def on_message(message):
     hero = getHero(message.content)
-    if hero != -1:
+    if hero != None:
         for stat in stats:
             if int(stat.hero_id) == hero.id:
                 await message.channel.send('Winrate on {} : {}%'.format(hero.localized_name, stat.win / stat.games * 100))

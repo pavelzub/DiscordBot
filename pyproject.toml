@@ -8,6 +8,7 @@ authors = ["Pavel Zubarev <pavelzub1996@gmail.com>"]
 python = "^3.9"
 python-dotenv = "^0.20.0"
 discord2 = "^2.0.1"
+python-opendota = "^1.0.2"
 
 [tool.poetry.dev-dependencies]
 

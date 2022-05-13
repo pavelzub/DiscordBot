@@ -1,1 +1,1 @@
-For run use `poetry install`
+For run use `run.cmd`

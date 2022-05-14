@@ -76,6 +76,14 @@ def get_player_wl_stats(dota_player_id):
 def register_dota_player(discord_id, dota_id):
     players_db_ref.update({ discord_id: dota_id })
 
+def get_last_match(dota_player_id):
+    try:
+        last_matches = player_api.players_account_id_recent_matches_get(int(dota_player_id), _check_return_type=False)
+        return last_matches[0]
+    except Exception as e:
+        print("Exception when calling PlayersApi->players_account_id_recent_matches_get: %s\n" % e)
+        return None
+
 @bot.event
 async def on_ready():
     guild_count = 0
@@ -139,6 +147,19 @@ async def winrate(ctx):
         f"{':muscle: cильный' if (winrate_in_percents >= 50) else ':chicken: cлабый'}, получается"
     )
 
+@bot.command()
+async def last(ctx):
+    dota_player_id = get_dota_id(ctx.message.author.id)
+
+    if (dota_player_id is None):
+        await ctx.reply(f"Ты кто такой, чтоб это делать?")
+        return
+    last_match = get_last_match(dota_player_id)
+    is_radiant = last_match.player_slot < 128
+    is_win = (last_match.radiant_win and is_radiant) or (not last_match.radiant_win and not is_radiant)
+    await ctx.reply(f"Последнюю игру ты {'победил' if is_win else 'проиграл'}")
+
+
 @bot.listen('on_message')
 async def listen_message(message):
     hero = get_hero(message.content)
@@ -148,6 +169,10 @@ async def listen_message(message):
             await message.channel.send(get_player_winrate_on_hero(dota_player_id, hero))
 
 
+
+
 token = os.getenv('TOKEN', None)
 if token != None:
     bot.run(token)
+else:
+    print('Cant find Token in .env')

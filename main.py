@@ -63,7 +63,14 @@ def get_player_winrate_on_hero(dota_player_id, hero):
                     return f'{name}\'s winrate on {hero.localized_name}: {stat.win / stat.games * 100:.2f}%, games {stat.games}'
                 else:
                     return f'{name} has no games on {hero.localized_name}'
-            
+
+def get_player_wl_stats(dota_player_id):
+    try:
+        wl_stats = player_api.players_account_id_wl_get(int(dota_player_id))
+        return wl_stats
+    except Exception as e:
+        print("Exception when calling PlayersApi->players_account_id_wl_get: %s\n" % e)
+        return None
 
 
 def register_dota_player(discord_id, dota_id):
@@ -113,6 +120,24 @@ async def register(ctx, dota_player_id):
         register_dota_player(ctx.message.author.id, dota_player_id)
     else:
         await ctx.reply(f"Кажется кто-то пиздун или закрыл аккаунт")
+
+@bot.command()
+async def winrate(ctx):
+    dota_player_id = get_dota_id(ctx.message.author.id)
+
+    if (dota_player_id is None):
+        await ctx.reply(f"Ты кто такой, чтоб это делать?")
+        return
+
+    wl_stats = get_player_wl_stats(dota_player_id)
+    winrate_in_percents = wl_stats.win / (wl_stats.win + wl_stats.lose) * 100
+
+    await ctx.reply(
+        f"Побед: {wl_stats.win}\n"
+        f"Поражений: {wl_stats.lose}\n"
+        f"Винрейт: {winrate_in_percents:.2f}%\n"
+        f"{':muscle: cильный' if (winrate_in_percents >= 50) else ':chicken: cлабый'}, получается"
+    )
 
 @bot.listen('on_message')
 async def listen_message(message):

@@ -160,7 +160,7 @@ async def last(ctx):
     for hero in all_heroes:
         if int(last_match.hero_id) == int(hero.id):
             hero_name = hero.localized_name
-    await ctx.reply(f"Твоя последняя игра на {hero_name} закончилась {'Победой' if is_win else 'Проигрышем'} \nИгра длилась {int(last_match.duration / 60)} минут \nТвои показатели KDA: {last_match.kills}:muscle:{last_match.deaths}:skull:{last_match.assists}:handshake:")
+    await ctx.reply(f"Твоя последняя игра на {hero_name} закончилась {'Победой' if is_win else 'Проигрышем'} \nИгра длилась {int(last_match.duration / 60)} минут \nТвои показатели KDA: {last_match.kills}:crossed_swords:{last_match.deaths}:skull:{last_match.assists}:handshake:")
 
 
 @bot.listen('on_message')

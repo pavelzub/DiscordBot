@@ -9,7 +9,7 @@ python = "^3.9"
 python-dotenv = "^0.20.0"
 python-opendota = "^1.0.2"
 firebase-admin = "^5.2.0"
-discord2 = "^2.0.1"
+discord-py-interactions = "^4.2.1"
 
 [tool.poetry.dev-dependencies]
 

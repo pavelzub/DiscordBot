@@ -24,8 +24,6 @@ dota_client = python_opendota.ApiClient(python_opendota.Configuration(host = "ht
 player_api = players_api.PlayersApi(dota_client)
 heroes_api = heroes_api.HeroesApi(dota_client)
 
-all_heroes = heroes_api.heroes_get()
-
 def pluralize(count: int, words: list[str]) -> str:
     cases = [2, 0, 1, 1, 1, 2]
     return f"{count} {words[2 if count % 100 > 4 and count % 100 < 20 else cases[min(count % 100, 5)]]}"
@@ -34,6 +32,7 @@ def get_dota_id(discord_id):
     return players_db_ref.get().get(str(discord_id), None)
 
 def get_hero(name):
+    all_heroes = heroes_api.heroes_get()
     for hero in all_heroes:
         if name.lower() == hero.localized_name.lower():
             return hero
@@ -122,6 +121,7 @@ async def winrate(ctx: interactions.CommandContext):
 @bot.command(
     name="compare",
     description="Помериться письками (винрейтом на герое) с другим дотером",
+    scope=814468578349678653,
     options=[
         interactions.Option(
             type=interactions.OptionType.MENTIONABLE,
@@ -138,25 +138,27 @@ async def winrate(ctx: interactions.CommandContext):
     ]
 )
 async def compare(ctx: interactions.CommandContext, doter: interactions.api.models.member.Member, hero: str):
-    hero = get_hero(hero)
+    hero_entity = get_hero(hero)
 
-    if (hero is None):
+    if (hero_entity is None):
         await ctx.send(f'Ошибка: Хз, что за герой такой: {hero}.')
         return
+
+    await ctx.send(f'Ща, подумаю и узнаем, кто лучше играет на {hero}…')
 
     first_player_id = get_dota_id(ctx.author.id)
     second_player_id = get_dota_id(doter.id)
 
     if (first_player_id is None):
         # Вова попросил
-        await ctx.send(f"Ногу с клавиатуры убери, чёрт неизвестный")
+        await ctx.send(f"Ошибка: Ногу с клавиатуры убери, чёрт неизвестный")
         return
 
     if (second_player_id is None):
-        await ctx.send(f'Не могу найти дотера {doter.name}')
+        await ctx.send(f'Ошибка: Не могу найти дотера {doter.name}')
         return
 
-    await ctx.send(f"{get_player_winrate_on_hero(int(first_player_id), hero)}\n{get_player_winrate_on_hero(int(second_player_id), hero)}")
+    await ctx.send(f"{get_player_winrate_on_hero(int(first_player_id), hero_entity)}\n{get_player_winrate_on_hero(int(second_player_id), hero_entity)}")
 
 
 @bot.command(
@@ -185,8 +187,11 @@ async def register(ctx: interactions.CommandContext, steam_id: int):
 @bot.command(
     name="last",
     description="Показывает статистики твоей последней игры",
+    scope=814468578349678653,
 )
 async def last(ctx: interactions.CommandContext):
+    all_heroes = heroes_api.heroes_get()
+
     dota_player_id = get_dota_id(ctx.author.id)
     if (dota_player_id is None):
         await ctx.send(f"Ты кто такой, чтоб это делать?")
@@ -204,6 +209,7 @@ async def last(ctx: interactions.CommandContext):
 @bot.command(
     name="hero",
     description="Показывает винрейт на поределенном герое",
+    scope=814468578349678653,
     options=[interactions.Option(
         type=interactions.OptionType.STRING,
         name="name",

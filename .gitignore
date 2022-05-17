@@ -4,3 +4,4 @@ newrelic_agent.log
 fireToken.json
 
 /.vscode
+/modules/__pycache__

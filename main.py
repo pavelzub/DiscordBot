@@ -19,7 +19,7 @@ if token is None:
     quit()
 
 async def get_dota_heroes(ctx: discord.AutocompleteContext) -> str:
-    return [hero_name for hero_name in dota.HERO_NAMES if hero_name.startswith(ctx.value.lower())]
+    return [hero_name for hero_name in dota.HERO_NAMES if hero_name.lower().startswith(ctx.value.lower())]
 
 @bot.event
 async def on_ready():

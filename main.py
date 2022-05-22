@@ -166,4 +166,23 @@ async def hero_winrate(ctx: discord.ApplicationContext, name: str):
     else:
         await ctx.respond(f"Ошибка: В доте, вроде, нет героя {name}.")
 
+@bot.slash_command(
+    name="me_dota",
+    description="Показывает Steam-аккаунт привязанный к твоему Discord",
+    scope=814468578349678653
+)
+async def show_me(ctx: discord.ApplicationContext):
+    await ctx.respond(':thinking: Думаю, подожди...')
+    dota_player_id = firebase.get_player_steam_id(ctx.author.id)
+    if (dota_player_id is None):
+        await ctx.respond("Ало, а ты кто такой чтоб кнопки тут жать?")
+        return
+
+    player_name = dota.get_player_name(dota_player_id)
+    if (player_name is None):
+        await ctx.respond("Имени-то у тебя нет")
+        return
+
+    return await ctx.respond(f"Ты зарегистрирован у бота, как дотер {player_name} ({str(dota_player_id)})")
+
 bot.run(token)

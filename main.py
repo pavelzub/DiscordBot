@@ -18,6 +18,9 @@ if token is None:
     print('Can\'t find bot token in .env')
     quit()
 
+async def get_dota_heroes(ctx: discord.AutocompleteContext) -> str:
+    return [hero_name for hero_name in dota.HERO_NAMES if hero_name.startswith(ctx.value.lower())]
+
 @bot.event
 async def on_ready():
     guild_count = 0
@@ -54,6 +57,17 @@ async def winrate(ctx: discord.ApplicationContext):
     name="compare",
     description="Помериться письками (винрейтом на герое) с другим дотером",
     scope=814468578349678653,
+)
+@option(
+    name="doter",
+    description="Имя дотера в Discord",
+    required=True
+)
+@option(
+    name="hero",
+    description="Имя героя",
+    autocomplete=discord.utils.basic_autocomplete(get_dota_heroes),
+    required=True
 )
 async def compare(ctx: discord.ApplicationContext, doter: discord.Member, hero: str):
     hero_entity = dota.get_dota_hero_by_name(hero)
@@ -129,9 +143,6 @@ async def last(ctx: discord.ApplicationContext):
         f"Игра длилась {last_match.duration / 60:.0f} минут(ы)\n"
         f"Твои показатели KDA: {last_match.kills}:crossed_swords: {last_match.deaths}:skull: {last_match.assists}:handshake:"
     )
-
-async def get_dota_heroes(ctx: discord.AutocompleteContext) -> str:
-    return [hero_name for hero_name in dota.HERO_NAMES if hero_name.startswith(ctx.value.lower())]
 
 @bot.slash_command(
     name="hero",

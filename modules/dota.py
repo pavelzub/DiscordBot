@@ -5,6 +5,50 @@ dota_client = python_opendota.ApiClient(python_opendota.Configuration(host = "ht
 players_api = players_api.PlayersApi(dota_client)
 heroes_api = heroes_api.HeroesApi(dota_client)
 
+HERO_NAMES = [
+    'Abaddon',
+    'Alchemist',
+    'Axe',
+    'Beastmaster',
+    'Brewmaster',
+    'Bristleback',
+    'Centaur Warrunner',
+    'Chaos Knight',
+    'Clockwerk',
+    'Dawnbreaker',
+    'Doom',
+    'Dragon Knight',
+    'Earth Spirit',
+    'Earthshaker',
+    'Elder Titan',
+    'Huskar',
+    'Io',
+    'Kunkka',
+    'Legion Commander',
+    'Lifestealer',
+    'Lycan',
+    'Magnus',
+    'Marci',
+    'Mars',
+    'Night Stalker',
+    'Omniknight',
+    'Phoenix',
+    'Primal Beast',
+    'Pudge',
+    'Sand King',
+    'Slardar',
+    'Snapfire',
+    'Spirit Breaker',
+    'Sven',
+    'Tidehunter',
+    'Timbersaw',
+    'Tiny',
+    'Treant Protector',
+    'Tusk',
+    'Underlord',
+    'Undying',
+]
+
 def get_player_name(steam_id: int) -> str | None:
     try:
         player_info = players_api.players_account_id_get(int(steam_id), _check_return_type=False)
